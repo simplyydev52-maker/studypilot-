@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyPilot — Smart Academic Management</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#687386;--primary:#5b5ce2;--border:#e3e7ef;--danger:#dc3545;--warning:#d89b00;--success:#159957}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.app{display:flex;min-height:100vh}.sidebar{width:260px;background:#fff;border-right:1px solid var(--border);padding:24px 16px;position:fixed;top:0;bottom:0;overflow:auto}.brand{font-size:25px;font-weight:700;color:var(--primary);margin-bottom:4px}.tag{color:var(--muted);font-size:13px;margin-bottom:24px}
+.profile{border-top:1px solid var(--border);padding-top:18px}.profile label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}.profile input{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px}
+nav{margin-top:22px}nav button{width:100%;border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:9px;margin:2px 0;cursor:pointer;color:#344054;font-size:14px}nav button:hover,nav button.active{background:#eef0ff;color:var(--primary);font-weight:600}
+main{margin-left:260px;padding:30px;width:calc(100% - 260px);max-width:1500px}h1{font-size:28px;margin:0 0 6px}h2{font-size:21px;margin:25px 0 14px}.caption{color:var(--muted);margin:0 0 24px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;box-shadow:0 2px 8px #00000006}.metric{font-size:25px;font-weight:700;margin-top:7px}.label{font-size:13px;color:var(--muted)}
+.panel{background:#fff;border:1px solid var(--border);border-radius:13px;padding:20px;margin-top:18px}
+.warning,.error,.success,.info{padding:13px;border-radius:9px;margin:10px 0}.warning{background:#fff7df;color:#765800}.error{background:#fff0f1;color:#a3212c}.success{background:#eaf8f0;color:#116b3c}.info{background:#eef3ff;color:#344b9b}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border)}th{background:#f7f8fb}
+button.primary{background:var(--primary);color:#fff;border:0;padding:10px 15px;border-radius:8px;cursor:pointer}.delete{border:0;background:#ffecef;color:#b4232f;border-radius:6px;padding:6px 9px;cursor:pointer}
+form.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}form label{font-size:13px;color:var(--muted)}form input,form select,form textarea{width:100%;margin-top:5px;padding:9px;border:1px solid var(--border);border-radius:8px;font:inherit}form textarea{min-height:80px}form .full{grid-column:1/-1}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.hidden{display:none}.pill{padding:4px 8px;border-radius:20px;font-size:12px;font-weight:600}.high{background:#fff0f1;color:#b4232f}.medium{background:#fff7df;color:#765800}.low{background:#eaf8f0;color:#116b3c}
+.progress{height:18px;background:#e9edf3;border-radius:20px;overflow:hidden}.progressbar{height:100%;background:var(--primary);width:0%;transition:.3s}.planner label{display:block;padding:12px;border-bottom:1px solid var(--border)}.planner input{margin-right:8px}
+@media(max-width:900px){.sidebar{width:210px}.cards{grid-template-columns:repeat(2,1fr)}main{margin-left:210px;width:calc(100% - 210px)}}@media(max-width:650px){.sidebar{position:relative;width:100%;height:auto}.app{display:block}main{margin-left:0;width:100%;padding:18px}.cards{grid-template-columns:1fr 1fr}form.grid{grid-template-columns:1fr}nav{display:grid;grid-template-columns:1fr 1fr}.full{grid-column:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">🎓 StudyPilot</div><div class="tag">Plan • Learn • Improve</div>
+  <div class="profile">
+    <b>Student Profile</b>
+    <label>Name</label><input id="studentName" value="Devdeep Rajbhar">
+    <label>Course</label><input id="studentCourse" value="BCA Data Science & AI">
+    <label>Semester</label><input id="studentSem" value="1st Semester">
+  </div>
+  <nav id="nav">
+    <button class="active" data-page="dashboard">🏠 Dashboard</button>
+    <button data-page="marks">📊 Marks Analysis</button>
+    <button data-page="assignments">📝 Assignment Manager</button>
+    <button data-page="priorities">🎯 Smart Priorities</button>
+    <button data-page="planner">📅 Study Planner</button>
+    <button data-page="progress">📈 Progress Tracking</button>
+    <button data-page="about">ℹ️ About Project</button>
+  </nav>
+</aside>
+
+<main>
+<section id="dashboard" class="page">
+<h1>🏠 Academic Dashboard</h1><p class="caption" id="studentCaption"></p>
+<div class="cards">
+<div class="card"><div class="label">Overall Average</div><div class="metric" id="overall">0%</div></div>
+<div class="card"><div class="label">Strongest Subject</div><div class="metric" id="strongest">N/A</div></div>
+<div class="card"><div class="label">Focus Subject</div><div class="metric" id="weakest">N/A</div></div>
+<div class="card"><div class="label">Pending Tasks</div><div class="metric" id="pending">0</div></div>
+</div>
+<div class="panel"><h2>🎯 Today's Focus</h2><div id="focus"></div></div>
+<div class="panel"><h2>⏰ Urgent Assignments</h2><div id="urgent"></div></div>
+</section>
+
+<section id="marks" class="page hidden">
+<h1>📊 Marks Analysis</h1>
+<div class="panel"><div class="actions"><h2>Add New Test Score</h2></div>
+<form id="marksForm" class="grid">
+<label>Subject Name<input id="mSubject" required></label>
+<label>Exam / Test Name<input id="mExam" required></label>
+<label>Obtained Marks<input id="mObtained" type="number" min="0" step=".5" required></label>
+<label>Maximum Marks<input id="mMaximum" type="number" min="1" step=".5" value="50" required></label>
+<label>Date<input id="mDate" type="date" required></label>
+<div class="full"><button class="primary">Save Score</button></div>
+</form></div>
+<div class="panel"><div id="marksTable"></div></div>
+</section>
+
+<section id="assignments" class="page hidden">
+<h1>📝 Assignment Manager</h1>
+<div class="panel"><h2>Add New Assignment</h2>
+<form id="assignmentForm" class="grid">
+<label>Subject<input id="aSubject" required></label><label>Assignment Title<input id="aTitle" required></label>
+<label class="full">Description<textarea id="aDesc"></textarea></label>
+<label>Assigned Date<input id="aAssigned" type="date" required></label><label>Deadline<input id="aDeadline" type="date" required></label>
+<label>Priority<select id="aPriority"><option>High</option><option selected>Medium</option><option>Low</option></select></label>
+<label>Status<select id="aStatus"><option>Pending</option><option>In Progress</option><option>Completed</option></select></label>
+<div class="full"><button class="primary">Save Assignment</button></div>
+</form></div>
+<div class="panel"><div id="assignmentTable"></div></div>
+</section>
+
+<section id="priorities" class="page hidden">
+<h1>🎯 Smart Priorities</h1><p class="caption">Rule-based heuristic ranking engine.</p>
+<div class="panel"><div id="priorityTable"></div></div>
+</section>
+
+<section id="planner" class="page hidden">
+<h1>📅 Study Planner</h1><div class="panel planner">
+<label><input type="checkbox"> 09:00 – 09:45: 🔴 Statistics Practice</label>
+<label><input type="checkbox"> 11:00 – 11:45: 🔴 C Programming Assignment</label>
+<label><input type="checkbox"> 15:00 – 15:30: 🟡 DBMS SQL Queries</label>
+<label><input type="checkbox"> 18:00 – 18:25: 🟢 Python Revision</label>
+</div>
+</section>
+
+<section id="progress" class="page hidden">
+<h1>📈 Progress Tracking</h1><div class="panel"><h2>Assignment Completion</h2><div class="progress"><div class="progressbar" id="progressbar"></div></div><p id="progressText"></p></div></section>
+
+<section id="about" class="page hidden">
+<h1>ℹ️ About StudyPilot</h1><div class="panel"><div class="info"><b>Created by Devdeep Rajbhar (bcads13)</b></div>
+<p>An academic management and prioritization system designed for college software exhibitions.</p>
+<p><b>StudyPilot</b> helps students track marks, assignments, deadlines, priorities and academic progress in one place.</p></div>
+</section>
+</main>
+</div>
+
+<script>
+const demoMarks=[
+{Subject:"Python",Exam:"Midterm Exam",Obtained:44,Maximum:50,Percentage:88,Date:"2026-02-15"},
+{Subject:"DBMS",Exam:"Internal Assessment",Obtained:42,Maximum:50,Percentage:84,Date:"2026-02-20"},
+{Subject:"C Programming",Exam:"Theory Test 1",Obtained:33.5,Maximum:50,Percentage:67,Date:"2026-02-25"},
+{Subject:"Statistics",Exam:"Unit Test 1",Obtained:26,Maximum:50,Percentage:52,Date:"2026-01-15"},
+{Subject:"Statistics",Exam:"Unit Test 2",Obtained:30.5,Maximum:50,Percentage:61,Date:"2026-02-10"},
+{Subject:"Statistics",Exam:"Midterm Exam",Obtained:35,Maximum:50,Percentage:70,Date:"2026-03-01"}];
+
+const today=new Date().toISOString().slice(0,10);
+let marks=JSON.parse(localStorage.getItem("studypilot_marks")||"null")||demoMarks;
+let assignments=JSON.parse(localStorage.getItem("studypilot_assignments")||"null")||[
+{Subject:"C Programming",Title:"C Lab: Pointers & Structs",Description:"Linked lists exercise",AssignedDate:"2026-02-20",Deadline:today,Priority:"High",Status:"Pending"},
+{Subject:"DBMS",Title:"SQL Relational Queries",Description:"Complex JOIN and index queries",AssignedDate:"2026-02-22",Deadline:"2026-03-10",Priority:"Medium",Status:"In Progress"},
+{Subject:"Python",Title:"Mini Project Proposal",Description:"Abstract and schema submission",AssignedDate:"2026-02-18",Deadline:"2026-03-15",Priority:"Low",Status:"Pending"}];
+
+function save(){localStorage.setItem("studypilot_marks",JSON.stringify(marks));localStorage.setItem("studypilot_assignments",JSON.stringify(assignments))}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function urgency(deadline,status){
+ if(status==="Completed")return [999,"🟢 COMPLETED","Completed"];
+ const d=new Date(deadline+"T00:00:00"), t=new Date();t.setHours(0,0,0,0);
+ const days=Math.round((d-t)/86400000);
+ if(days<0)return[days,"🔴 URGENT",`Overdue by ${Math.abs(days)}d`];
+ if(days===0)return[days,"🔴 URGENT","Due today"];
+ if(days<=2)return[days,"🔴 HIGH",`${days}d remaining`];
+ if(days<=5)return[days,"🟡 MEDIUM",`${days}d remaining`];
+ return[days,"🟢 LOW",`${days}d remaining`];
+}
+function averages(){
+ let o={};marks.forEach(m=>(o[m.Subject]??=[]).push(Number(m.Percentage)));
+ let a={};Object.keys(o).forEach(s=>a[s]=o[s].reduce((x,y)=>x+y,0)/o[s].length);return a;
+}
+function render(){
+ const av=averages(), subs=Object.keys(av);
+ let overall=subs.length?subs.reduce((x,s)=>x+av[s],0)/subs.length:0;
+ document.getElementById("overall").textContent=overall.toFixed(1)+"%";
+ document.getElementById("strongest").textContent=subs.length?`${subs.reduce((a,b)=>av[a]>av[b]?a:b)} (${Math.max(...subs.map(s=>av[s])).toFixed(1)}%)`:"N/A";
+ document.getElementById("weakest").textContent=subs.length?`${subs.reduce((a,b)=>av[a]<av[b]?a:b)} (${Math.min(...subs.map(s=>av[s])).toFixed(1)}%)`:"N/A";
+ const pending=assignments.filter(a=>a.Status!=="Completed").length;
+ document.getElementById("pending").textContent=pending;
+ document.getElementById("studentCaption").innerHTML=`Student: <b>${esc(document.getElementById("studentName").value)}</b> | ${esc(document.getElementById("studentCourse").value)} (${esc(document.getElementById("studentSem").value)})`;
+ let weak=subs.length?subs.reduce((a,b)=>av[a]<av[b]?a:b):null;
+ document.getElementById("focus").innerHTML=weak&&av[weak]<60?`<div class="warning">🔴 <b>${esc(weak)}</b> — Score is ${av[weak].toFixed(1)}%. Focus recommended (45 mins revision).</div>`:"<div class='success'>🟢 No subject is currently below 60%. Keep up the consistency!</div>";
+ let urgent=assignments.filter(a=>a.Status!=="Completed").map((a,i)=>({...a,i,u:urgency(a.Deadline,a.Status)})).filter(a=>a.u[1].includes("URGENT")||a.u[1].includes("HIGH"));
+ document.getElementById("urgent").innerHTML=urgent.length?urgent.map(a=>`<div class="error">${a.u[1]}: <b>${esc(a.Title)}</b> (${esc(a.Subject)}) — ${a.u[2]}.</div>`).join(""):"<div class='success'>No urgent assignments.</div>";
+ document.getElementById("marksTable").innerHTML=tableMarks();
+ document.getElementById("assignmentTable").innerHTML=tableAssignments();
+ document.getElementById("priorityTable").innerHTML=tablePriorities(av);
+ let total=assignments.length,done=assignments.filter(a=>a.Status==="Completed").length,rate=total?Math.round(done/total*100):0;
+ document.getElementById("progressbar").style.width=rate+"%";document.getElementById("progressText").textContent=`Assignment Completion: ${rate}% (${done}/${total})`;
+}
+function tableMarks(){if(!marks.length)return"No marks recorded.";return`<table><tr><th>Subject</th><th>Exam</th><th>Obtained</th><th>Maximum</th><th>Percentage</th><th>Date</th><th></th></tr>${marks.map((m,i)=>`<tr><td>${esc(m.Subject)}</td><td>${esc(m.Exam)}</td><td>${m.Obtained}</td><td>${m.Maximum}</td><td>${m.Percentage}%</td><td>${m.Date}</td><td><button class="delete" onclick="removeMark(${i})">Delete</button></td></tr>`).join("")}</table>`}
+function tableAssignments(){if(!assignments.length)return"No assignments recorded.";return`<table><tr><th>Subject</th><th>Title</th><th>Deadline</th><th>Urgency</th><th>Priority</th><th>Status</th><th></th></tr>${assignments.map((a,i)=>{let u=urgency(a.Deadline,a.Status);let cls=a.Priority.toLowerCase();return`<tr><td>${esc(a.Subject)}</td><td>${esc(a.Title)}</td><td>${a.Deadline}</td><td>${u[1]} (${u[2]})</td><td><span class="pill ${cls}">${a.Priority}</span></td><td>${a.Status}</td><td><button class="delete" onclick="removeAssignment(${i})">Delete</button></td></tr>`}).join("")}</table>`}
+function tablePriorities(av){let p=[];Object.keys(av).forEach(s=>p.push({type:"Subject",item:"Study "+s,score:av[s]<60?40:av[s]<80?20:5,why:`Current average is ${av[s].toFixed(1)}%`}));assignments.forEach(a=>{if(a.Status!=="Completed"){let u=urgency(a.Deadline,a.Status),score=u[1].includes("URGENT")?50:u[1].includes("HIGH")?40:20;if(a.Priority==="High")score+=20;p.push({type:"Assignment",item:`${a.Title} (${a.Subject})`,score,why:`Deadline status: ${u[1]}`})}});p.sort((a,b)=>b.score-a.score);return p.length?`<table><tr><th>Type</th><th>Item</th><th>Score</th><th>Rationale</th></tr>${p.map(x=>`<tr><td>${x.type}</td><td>${esc(x.item)}</td><td><b>${x.score}</b></td><td>${esc(x.why)}</td></tr>`).join("")}</table>`:"No priorities yet."}
+function removeMark(i){marks.splice(i,1);save();render()}function removeAssignment(i){assignments.splice(i,1);save();render()}
+document.getElementById("nav").addEventListener("click",e=>{if(e.target.tagName!=="BUTTON")return;document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));e.target.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById(e.target.dataset.page).classList.remove("hidden")});
+document.getElementById("marksForm").addEventListener("submit",e=>{e.preventDefault();let obtained=+mObtained.value,max=+mMaximum.value;if(obtained>max)return alert("Obtained marks cannot exceed maximum marks.");marks.push({Subject:mSubject.value.trim(),Exam:mExam.value.trim(),Obtained:obtained,Maximum:max,Percentage:+((obtained/max)*100).toFixed(2),Date:mDate.value});save();e.target.reset();mMaximum.value=50;mDate.value=today;render()});
+document.getElementById("assignmentForm").addEventListener("submit",e=>{e.preventDefault();assignments.push({Subject:aSubject.value.trim(),Title:aTitle.value.trim(),Description:aDesc.value.trim(),AssignedDate:aAssigned.value,Deadline:aDeadline.value,Priority:aPriority.value,Status:aStatus.value});save();e.target.reset();aAssigned.value=today;aDeadline.value=today;render()});
+["studentName","studentCourse","studentSem"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+mDate.value=today;aAssigned.value=today;aDeadline.value=today;render();
+</script>
+</body>
+</html>
